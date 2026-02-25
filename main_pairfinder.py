@@ -14,8 +14,14 @@ assets= sp500['Symbol'].tolist()
 
 assets= [asset.replace('.','-')for asset in assets]
 data = yf.download(assets, start="2020-01-01")['Close']# this close is automatically adj close.
-print(data)
+#print(data)
+
+
+
 #step 2: make all possible combinations 
+tickers= data.columns
+pairs=list(combinations(tickers, 2))
+print(pairs)
 #step 3:tabulate this information as |stock1|stock2| coefficient of correlation 
 #step 4:filter out highly correlated stocks
 #step 5:apply ADF test to these stocks
