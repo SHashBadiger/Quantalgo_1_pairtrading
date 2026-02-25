@@ -20,10 +20,19 @@ data = yf.download(assets, start="2020-01-01")['Close']# this close is automatic
 
 #step 2: make all possible combinations 
 tickers= data.columns
-pairs=list(combinations(tickers, 2))
-print(pairs)
+pairs=pd.DataFrame(combinations(tickers, 2), columns=['Stock 1', 'Stock 2'])
+#print(pairs)
+
 #step 3:tabulate this information as |stock1|stock2| coefficient of correlation 
-#step 4:filter out highly correlated stocks
+corr_matrix = data.corr().values
+ticker_to_idx = {ticker: i for i, ticker in enumerate(data.columns)}
+
+idx1 = pairs['Stock 1'].map(ticker_to_idx).values
+idx2 = pairs['Stock 2'].map(ticker_to_idx).values
+pairs['Correlation'] = corr_matrix[idx1, idx2]
+
+#step 4:filter for highly correlated stocks
+
 #step 5:apply ADF test to these stocks
 #step 6:filter out based on p value to reject the null hypothesis (<0.01)
 #step 7:critical values 
