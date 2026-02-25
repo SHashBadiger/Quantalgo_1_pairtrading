@@ -14,6 +14,7 @@ assets= sp500['Symbol'].tolist()
 
 assets= [asset.replace('.','-')for asset in assets]
 data = yf.download(assets, start="2020-01-01")['Close']# this close is automatically adj close.
+#data = data.dropna(axis=1)
 #print(data)
 
 
@@ -33,10 +34,38 @@ pairs['Correlation'] = corr_matrix[idx1, idx2]
 
 #step 4:filter for highly correlated stocks
 filteredpairs= pairs[pairs['Correlation']>=0.95] #filtered for pairs with correlcoeff higher or equal to 0.95
-print(len(filteredpairs['Correlation']))
-#step 5:apply ADF test to these stocks
-#step 6:filter out based on p value to reject the null hypothesis (<0.01)
-#step 7:critical values 
+#print(len(filteredpairs['Correlation']))
+
+#step 5:find regression and then apply ADF test to these residuals &
+#step 6:filter out based on p value to reject the null hypothesis (<0.01) &
+#step 7:critical values &
 #step 8:adf test statisitic should be lower than critical value (1%)
+
+cointpairs=[]
+for index, row in filteredpairs.iterrows():
+    s1= data[row['Stock 1']]
+    s2= data[row['Stock 2']]
+    # we need regression in the form S2= alpha+(beta*S1)+Epsilon where beta is hedge ratio, alpha is the intercept and epislon is the spread 
+    X=sm.add_constant(s1) #adds intercept (alpha)
+    model = sm.OLS(s2, X, missing='drop').fit()
+    beta=model.params.iloc[1] #determines beta from model it makes in above line; params[0] would be the alpha
+    spread = model.resid.dropna() #deterimines epsilon
+    adfresult = adfuller(spread) #does the adf test
+    adfstat = adfresult[0]
+    pvalue=adfresult[1]
+    critvalues = adfresult[4]
+    if pvalue < 0.01:
+        cointpairs.append({
+            'Stock 1': row['Stock 1'],
+            'Stock 2': row['Stock 2'],
+            'Beta': beta,
+            'ADF stat': adfstat, 
+            'Crit value': critvalues['1%']
+        })
+
 #step 9:tabluate results of pairs accoring to the most negative test statistic
 
+finalpairs=pd.DataFrame(cointpairs)
+finalpairs=finalpairs.sort_values(by='ADF stat')
+print("\n" + "="*50)
+print(finalpairs.head(10))
