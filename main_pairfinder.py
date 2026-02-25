@@ -23,7 +23,7 @@ tickers= data.columns
 pairs=pd.DataFrame(combinations(tickers, 2), columns=['Stock 1', 'Stock 2'])
 #print(pairs)
 
-#step 3:tabulate this information as |stock1|stock2| coefficient of correlation 
+#step 3:tabulate this information as |stock1|stock2|correlation| 
 corr_matrix = data.corr().values
 ticker_to_idx = {ticker: i for i, ticker in enumerate(data.columns)}
 
@@ -32,7 +32,8 @@ idx2 = pairs['Stock 2'].map(ticker_to_idx).values
 pairs['Correlation'] = corr_matrix[idx1, idx2]
 
 #step 4:filter for highly correlated stocks
-
+filteredpairs= pairs[pairs['Correlation']>=0.95] #filtered for pairs with correlcoeff higher or equal to 0.95
+print(len(filteredpairs['Correlation']))
 #step 5:apply ADF test to these stocks
 #step 6:filter out based on p value to reject the null hypothesis (<0.01)
 #step 7:critical values 
