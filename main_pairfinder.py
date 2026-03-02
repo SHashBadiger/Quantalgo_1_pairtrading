@@ -64,13 +64,31 @@ if __name__ == '__main__':
         adfstat = adfresult[0]
         pvalue=adfresult[1]
         critvalues = adfresult[4]
-        if pvalue < 0.01:
+
+        #ou half life test
+        spread_lag=spread.shift(1)
+        spread_diff= spread.diff()
+
+        valid_idx = spread_lag.dropna().index.intersection(spread_diff.dropna().index)
+        y = spread_diff.loc[valid_idx]
+        x = sm.add_constant(spread_lag.loc[valid_idx])
+
+        ou_model = sm.OLS(y, x).fit()
+        lambda_val = ou_model.params.iloc[1]
+
+        if lambda_val < 0:
+            half_life = -np.log(2) / lambda_val
+        else:
+             half_life = np.inf
+
+        if pvalue < 0.01 and half_life <= 15:
             cointpairs.append({
                 'Stock 1': row['Stock 1'],
                 'Stock 2': row['Stock 2'],
                 'Beta': beta,
                 'ADF stat': adfstat, 
-                'Crit value': critvalues['1%']
+                'Crit value': critvalues['1%'],
+                'Half life': half_life
             })
 
     #step 9:tabluate results of pairs accoring to the most negative test statistic
