@@ -1,3 +1,11 @@
+#essentially a 4 step process
+#1. scraps data from given etf, in this case s&p500. (saves s&p data to the sp500 data cache and does a new download every 30mins)
+#2. runs correlation between every combination (>0.95)
+#3. runs adf test for p value<0.01
+#4. runs ou half life for <15 days'''
+
+
+
 import pandas as pd
 import yfinance as yf
 import numpy as np
@@ -6,10 +14,10 @@ from statsmodels.tsa.stattools import adfuller
 from itertools import combinations
 import os
 import time 
-#import matplotlib.pyplot as plt
+
 
 CACHE_FILE = "sp500_data_cache.csv"
-CACHE_EXPIRY_SECONDS = 900
+CACHE_EXPIRY_SECONDS = 1800
 #step 1: import data of ETF (closing price)
 if os.path.exists(CACHE_FILE) and (time.time() - os.path.getmtime(CACHE_FILE)) < CACHE_EXPIRY_SECONDS:
     print("Loading recent market data from local cache...")
@@ -18,11 +26,14 @@ else:
     print("Downloading fresh market data from Yahoo Finance...")
     # step 1: import data of ETF (closing price)
     url = 'https://en.wikipedia.org/wiki/List_of_S%26P_500_companies'
+   # url = 'https://en.wikipedia.org/wiki/NIFTY_50'
     snpdata = pd.read_html(url, storage_options={'User-Agent': 'Mozilla/5.0'})
-    sp500 = snpdata[0]
+    sp500 = snpdata[0] #change to 0 for snp and 1 for nifty50
 
     assets = sp500['Symbol'].tolist()
     assets = [asset.replace('.','-') for asset in assets]
+   # assets = [t+'.NS' for t in assets] # only for nifty50
+
     
     data = yf.download(assets, start="2020-01-01")['Close']
     data.to_csv(CACHE_FILE)
@@ -96,4 +107,4 @@ if __name__ == '__main__':
     finalpairs=pd.DataFrame(cointpairs)
     finalpairs=finalpairs.sort_values(by='ADF stat')
     print("\n" + "="*50)
-    print(finalpairs.head(10))
+    print(finalpairs.head(20))
