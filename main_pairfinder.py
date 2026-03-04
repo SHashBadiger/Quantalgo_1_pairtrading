@@ -15,11 +15,16 @@ from itertools import combinations
 import os
 import time 
 
+START_DATE = "2024-01-01"
+END_DATE = "2026-01-01"
 
 CACHE_FILE = "sp500_data_cache.csv"
-CACHE_EXPIRY_SECONDS = 1800
+CACHE_EXPIRY_SECONDS = 900
 #step 1: import data of ETF (closing price)
-if os.path.exists(CACHE_FILE) and (time.time() - os.path.getmtime(CACHE_FILE)) < CACHE_EXPIRY_SECONDS:
+
+FORCE_REFRESH= False
+
+if not FORCE_REFRESH and os.path.exists(CACHE_FILE) and (time.time() - os.path.getmtime(CACHE_FILE)) < CACHE_EXPIRY_SECONDS:
     print("Loading recent market data from local cache...")
     data = pd.read_csv(CACHE_FILE, index_col=0, parse_dates=True)
 else:
@@ -35,7 +40,7 @@ else:
    # assets = [t+'.NS' for t in assets] # only for nifty50
 
     
-    data = yf.download(assets, start="2020-01-01")['Close']
+    data = yf.download(assets, start= START_DATE, end= END_DATE)['Close']
     data.to_csv(CACHE_FILE)
 
 
@@ -106,5 +111,9 @@ if __name__ == '__main__':
 
     finalpairs=pd.DataFrame(cointpairs)
     finalpairs=finalpairs.sort_values(by='ADF stat')
+
+    finalpairs.to_csv('pair_trading_results.csv', index=False)
+    print("Full results saved to 'pair_trading_results.csv'")
+
     print("\n" + "="*50)
-    print(finalpairs.head(20))
+    print(finalpairs)

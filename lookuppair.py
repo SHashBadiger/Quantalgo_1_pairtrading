@@ -6,7 +6,7 @@ from statsmodels.tsa.stattools import adfuller
 from main_pairfinder import data
 import matplotlib.pyplot as plt
 
-def run_custom_analysis(ticker1, ticker2, data):
+def run_custom_analysis(ticker1, ticker2, data, start_date='2024-01-01'):
 
     if ticker1 not in data.columns or ticker2 not in data.columns:
         print(f"Error: One or both tickers not found in dataset.")
@@ -33,24 +33,26 @@ def run_custom_analysis(ticker1, ticker2, data):
     print(f"P-Value: {adf_result[1]:.4e}")
     print(f"1% Critical Value: {adf_result[4]['1%']:.4f}")
 
-    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8), sharex=True)
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8))
 
-    recent_z_score = z_score.iloc[-1000:]
-    ax1.plot(recent_z_score)
-    ax1.axhline(0, color='black') # Mean line
-    ax1.axhline(1.75, color='red', linestyle='--')  # 2 Std Dev (Sell Signal)
-    ax1.axhline(-1.75, color='green', linestyle='--') # -2 Std Dev (Buy Signal)
-    ax1.set_ylabel('Standard Deviations (Z-Score)')
-    ax1.set_title("Z score")
+    recent_z_score = z_score.loc[start_date:]
+    ax2.plot(recent_z_score,label= "Static Z-score",  color="purple")
+    ax2.axhline(0, color='black') # Mean line
+    ax2.axhline(2.0, color='red', linestyle='--')  # 2 Std Dev (Sell Signal)
+    ax2.axhline(-2.0, color='green', linestyle='--') # -2 Std Dev (Buy Signal)
+    ax2.set_ylabel('Standard Deviations (Z-Score)')
+    ax2.set_title(f"Z score between {ticker1} and {ticker2} (Hedge ratio:{model.params.iloc[1]:.4f})")
+    ax2.legend()
 
-    recent_spread = spread.iloc[-1000:]
-    ax2.plot(recent_spread)
-    ax2.set_title(f"Spread between {ticker1} and {ticker2}")
-    ax2.set_xlabel("Time")
-    ax2.axhline(spread.mean(), color='red', linestyle='--')
+    recent_spread = spread.loc[start_date:]
+    ax1.plot(recent_spread, label= f"{ticker2}-({model.params.iloc[1]:.4f}*{ticker1})")
+    ax1.set_title(f"Spread between {ticker1} and {ticker2}")
+    ax1.set_ylabel("Spread")
+    ax1.axhline(spread.mean(), color='red', linestyle='--')
+    ax1.legend()
 
-    plt.gcf().autofmt_xdate()
-    plt.show()
+    plt.tight_layout()
+    plt.savefig('Spread & Zscore results.png')
 
 # Compute for specific pairs
-run_custom_analysis('BKNG', 'MA', data)
+run_custom_analysis('EVRG', 'NI', data)

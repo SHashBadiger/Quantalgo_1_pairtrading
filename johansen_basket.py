@@ -26,4 +26,4 @@ def johansen_basket(tickers):
     else:
         print("Result: Weak cointegration in this cluster.")
 
-johansen_basket(['AVGO', 'TSM', 'JPM', 'GS', 'MS'])
+johansen_basket(['EVRG', 'NI', 'ATO', 'XEL'])
