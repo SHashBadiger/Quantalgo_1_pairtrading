@@ -1,0 +1,9 @@
+# Sentinel: Sentiment Watch Config
+tickers: [JPM, AVGO]
+sources: [earnings_calls, 10k_filings, reuters_news]
+llm_agent: gemini-3-flash
+alert_threshold: 0.7 (high importance)
+
+# LOG: Sentiment Watch Initialized
+- 2025-02-21: Monitoring JPM for "systemic risk" / "interest rate" exposure.
+- 2025-02-21: Monitoring AVGO for "AI demand" / "supply chain" constraints.

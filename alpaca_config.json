@@ -1,0 +1,10 @@
+{
+    "api_endpoint": "https://paper-api.alpaca.markets",
+    "api_key": "YOUR_PAPER_KEY",
+    "tier1_pairs": [
+        "HD-MA",
+        "AVGO-JPM"
+    ],
+    "tca_friction_bps": 7,
+    "min_profit_bps": 15
+}

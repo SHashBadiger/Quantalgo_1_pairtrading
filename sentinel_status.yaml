@@ -1,0 +1,9 @@
+# Sentiment Score Log
+timestamp: 2025-02-21 20:05:00 UTC
+JPM_score: -0.1 (Neutral-Negative: Basel III discussion)
+AVGO_score: 0.8 (Strongly Positive: New AI chip contract rumors)
+Aggregate_Sentinel: 0.35 (SAFE TO TRADE)
+
+# News-Gap Status
+FOMC_Watch: No high-impact events in the next 30 minutes.
+Status: ENTRIES ALLOWED
